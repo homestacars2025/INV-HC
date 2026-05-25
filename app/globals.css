@@ -1,0 +1,115 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ── HC-INVESTORS Design Tokens ────────────────────────────────── */
+@theme inline {
+  /* Brand */
+  --color-brand:       #4ba6ea;
+  --color-brand-hover: #3a95d9;
+  --color-brand-soft:  #e8f3fc;
+
+  /* Ink (text) */
+  --color-ink:   #0a0a0a;
+  --color-ink-2: #404040;
+  --color-ink-3: #737373;
+  --color-ink-4: #a3a3a3;
+
+  /* Paper (backgrounds) */
+  --color-paper:   #ffffff;
+  --color-paper-2: #fafafa;
+  --color-paper-3: #f5f5f5;
+
+  /* Borders */
+  --color-line:        #e5e5e5;
+  --color-line-strong: #d4d4d4;
+
+  /* Semantic */
+  --color-success:      #16a34a;
+  --color-success-soft: #f0fdf4;
+  --color-warning:      #ea580c;
+  --color-danger:       #dc2626;
+  --color-danger-soft:  #fef2f2;
+
+  /* Fonts */
+  --font-sans:    var(--font-cairo), system-ui, sans-serif;
+  --font-numeric: var(--font-inter-tight), system-ui, sans-serif;
+
+  /* shadcn mappings — override to match our brand */
+  --color-background: #ffffff;
+  --color-foreground: #0a0a0a;
+  --color-primary:    #4ba6ea;
+  --color-primary-foreground: #ffffff;
+  --color-border:     #e5e5e5;
+  --color-input:      #e5e5e5;
+  --color-ring:       #4ba6ea;
+  --color-muted:      #f5f5f5;
+  --color-muted-foreground: #737373;
+
+  /* shadcn radius — base unit */
+  --radius-sm:  0.375rem;
+  --radius-md:  0.5rem;
+  --radius-lg:  0.5rem;
+  --radius-xl:  0.75rem;
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+}
+
+/* shadcn CSS vars (kept for component compatibility) */
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.095 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.095 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.095 0 0);
+  --primary: oklch(0.662 0.132 234.9);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.662 0.132 234.9);
+  --radius: 0.5rem;
+}
+
+/* ── Custom utilities ───────────────────────────────────────────── */
+@utility shadow-card {
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.04), 0 1px 3px 0 rgb(0 0 0 / 0.06);
+}
+
+@utility shadow-lifted {
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.04);
+}
+
+@utility font-numeric {
+  font-family: var(--font-numeric);
+  font-variant-numeric: tabular-nums;
+  direction: ltr;
+  unicode-bidi: embed;
+}
+
+@utility rtl-flip {
+  transform: scaleX(-1);
+}
+
+/* ── Base styles ────────────────────────────────────────────────── */
+@layer base {
+  * {
+    @apply border-line outline-brand/50;
+  }
+  body {
+    @apply bg-paper text-ink;
+    font-family: var(--font-cairo), system-ui, sans-serif;
+  }
+  html {
+    @apply font-sans;
+  }
+}
