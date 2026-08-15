@@ -1,7 +1,8 @@
 import { cn } from "@/lib/utils";
 import { TRY } from "@/components/shared/num";
 import { formatArabicShortDate } from "@/lib/format/date";
-import type { TransactionRow } from "@/lib/queries/accounting";
+import { ReceiptViewer } from "./receipt-viewer";
+import type { TransactionRow } from "@/lib/queries/accounting-shared";
 
 function DirectionBadge({ direction }: { direction: "IN" | "OUT" }) {
   return (
@@ -13,7 +14,7 @@ function DirectionBadge({ direction }: { direction: "IN" | "OUT" }) {
           : "bg-danger/10 text-danger border-danger/20"
       )}
     >
-      {direction === "IN" ? "دخل" : "خروج"}
+      {direction === "IN" ? "دخول" : "خروج"}
     </span>
   );
 }
@@ -62,6 +63,9 @@ export function TransactionList({ transactions }: TransactionListProps) {
                   {secondary && (
                     <p className="text-xs text-ink-4">{secondary}</p>
                   )}
+                  {tx.receipt_url && (
+                    <ReceiptViewer url={tx.receipt_url} className="-ms-3 mt-0.5 self-start" />
+                  )}
                 </div>
                 <div className="flex flex-col items-end gap-1.5 shrink-0">
                   <DirectionBadge direction={tx.direction} />
@@ -81,7 +85,8 @@ export function TransactionList({ transactions }: TransactionListProps) {
               <th className="text-start ps-5 py-3 text-xs font-semibold text-ink-3 w-36">التاريخ</th>
               <th className="text-start ps-4 py-3 text-xs font-semibold text-ink-3">التوضيح</th>
               <th className="text-center py-3 text-xs font-semibold text-ink-3 w-24">النوع</th>
-              <th className="text-end pe-5 py-3 text-xs font-semibold text-ink-3 w-36">القيمة</th>
+              <th className="text-end py-3 text-xs font-semibold text-ink-3 w-36">القيمة</th>
+              <th className="text-center pe-5 ps-4 py-3 text-xs font-semibold text-ink-3 w-24">الإيصال</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-line">
@@ -102,8 +107,15 @@ export function TransactionList({ transactions }: TransactionListProps) {
                   <td className="py-3.5 text-center">
                     <DirectionBadge direction={tx.direction} />
                   </td>
-                  <td className="pe-5 py-3.5 text-end">
+                  <td className="py-3.5 text-end">
                     <TxAmount direction={tx.direction} amount={tx.amount} />
+                  </td>
+                  <td className="pe-5 ps-4 py-3.5 text-center">
+                    {tx.receipt_url ? (
+                      <ReceiptViewer url={tx.receipt_url} variant="icon" />
+                    ) : (
+                      <span className="text-xs text-ink-4">—</span>
+                    )}
                   </td>
                 </tr>
               );

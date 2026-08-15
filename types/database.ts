@@ -210,6 +210,7 @@ export type Database = {
           date: string;
           note: string | null;
           created_at: string;
+          receipt_url: string | null;
         };
         Insert: {
           id?: number;
@@ -223,6 +224,7 @@ export type Database = {
           date: string;
           note?: string | null;
           created_at?: string;
+          receipt_url?: string | null;
         };
         Update: {
           id?: number;
@@ -234,6 +236,7 @@ export type Database = {
           direction?: string;
           date?: string;
           note?: string | null;
+          receipt_url?: string | null;
         };
         Relationships: GenericRelationship[];
       };
