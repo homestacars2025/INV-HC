@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getAuthUser, getCurrentInvestor } from "@/lib/queries/auth";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 import { BottomNav } from "@/components/layout/bottom-nav";
@@ -9,22 +10,25 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+  // Auth + role enforcement — third layer, after the login action and the middleware.
+  const user = await getAuthUser();
   if (!user) redirect("/login");
 
+  const supabase = await createClient();
   const { data: profile } = await supabase
     .from("profiles")
     .select("role, full_name, avatar_url, email")
     .eq("id", user.id)
     .single();
 
-  const ALLOWED = ["admin", "investor"];
-  if (!profile || !ALLOWED.includes(profile.role)) {
+  if (!profile || profile.role !== "investor") {
+    await supabase.auth.signOut();
+    redirect("/login");
+  }
+
+  // An investor role without an active investor record has nothing to show.
+  const investor = await getCurrentInvestor();
+  if (!investor) {
     await supabase.auth.signOut();
     redirect("/login");
   }

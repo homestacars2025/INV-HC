@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { Suspense, useState, useTransition } from "react";
+import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -9,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signIn } from "./actions";
+import { NOT_INVESTOR_ERROR, NOT_INVESTOR_MESSAGE } from "./messages";
 import { cn } from "@/lib/utils";
 
 const schema = z.object({
@@ -18,9 +20,27 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
+function ErrorAlert({ message }: { message: string }) {
+  return (
+    <div className="rounded-lg border border-danger/30 bg-danger-soft px-4 py-3">
+      <p className="text-sm text-danger">{message}</p>
+    </div>
+  );
+}
+
+// The middleware signs out an authenticated non-investor and sends them here with
+// ?error=not_investor. Reading it needs useSearchParams, so it sits behind its own
+// Suspense boundary — the rest of the form still prerenders statically.
+function RejectionNotice() {
+  const searchParams = useSearchParams();
+  if (searchParams.get("error") !== NOT_INVESTOR_ERROR) return null;
+  return <ErrorAlert message={NOT_INVESTOR_MESSAGE} />;
+}
+
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const {
@@ -33,6 +53,7 @@ export function LoginForm() {
 
   function onSubmit(values: FormValues) {
     setServerError(null);
+    setSubmitted(true);
     const fd = new FormData();
     fd.set("email", values.email);
     fd.set("password", values.password);
@@ -98,11 +119,15 @@ export function LoginForm() {
         )}
       </div>
 
-      {/* Server error */}
-      {serverError && (
-        <div className="rounded-lg border border-danger/30 bg-danger-soft px-4 py-3">
-          <p className="text-sm text-danger">{serverError}</p>
-        </div>
+      {/* Rejection from the middleware, until the user makes their own attempt */}
+      {serverError ? (
+        <ErrorAlert message={serverError} />
+      ) : (
+        !submitted && (
+          <Suspense fallback={null}>
+            <RejectionNotice />
+          </Suspense>
+        )
       )}
 
       {/* Submit */}

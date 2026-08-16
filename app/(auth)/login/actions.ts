@@ -3,8 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-
-const ALLOWED_ROLES = ["admin", "investor"] as const;
+import { NOT_INVESTOR_MESSAGE } from "./messages";
 
 export async function signIn(formData: FormData) {
   const supabase = await createClient();
@@ -35,9 +34,9 @@ export async function signIn(formData: FormData) {
     .eq("id", user.id)
     .single();
 
-  if (!profile || !ALLOWED_ROLES.includes(profile.role as (typeof ALLOWED_ROLES)[number])) {
+  if (!profile || profile.role !== "investor") {
     await supabase.auth.signOut();
-    return { error: "ليس لديك صلاحية الوصول إلى هذه البوابة" };
+    return { error: NOT_INVESTOR_MESSAGE };
   }
 
   revalidatePath("/", "layout");
