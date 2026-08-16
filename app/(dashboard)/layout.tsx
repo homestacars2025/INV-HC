@@ -22,14 +22,16 @@ export default async function DashboardLayout({
     .single();
 
   if (!profile || profile.role !== "investor") {
-    await supabase.auth.signOut();
+    // Local scope: drop the session for this portal only. A global sign-out would
+    // revoke the same user's session in the admin app, which shares this project.
+    await supabase.auth.signOut({ scope: "local" });
     redirect("/login");
   }
 
   // An investor role without an active investor record has nothing to show.
   const investor = await getCurrentInvestor();
   if (!investor) {
-    await supabase.auth.signOut();
+    await supabase.auth.signOut({ scope: "local" });
     redirect("/login");
   }
 

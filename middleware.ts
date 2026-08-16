@@ -46,7 +46,9 @@ async function signOutOnto(request: NextRequest, response: NextResponse) {
     }
   );
 
-  await supabase.auth.signOut();
+  // Local scope: drop the session for this portal only. A global sign-out would
+  // revoke the same user's session in the admin app, which shares this project.
+  await supabase.auth.signOut({ scope: "local" });
 }
 
 export async function middleware(request: NextRequest) {

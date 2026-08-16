@@ -35,7 +35,9 @@ export async function signIn(formData: FormData) {
     .single();
 
   if (!profile || profile.role !== "investor") {
-    await supabase.auth.signOut();
+    // Local scope: drop the session for this portal only. A global sign-out would
+    // revoke the same user's session in the admin app, which shares this project.
+    await supabase.auth.signOut({ scope: "local" });
     return { error: NOT_INVESTOR_MESSAGE };
   }
 
