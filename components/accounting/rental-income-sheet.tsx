@@ -5,7 +5,9 @@ import { computeSummary, type CarBasic, type TransactionRow } from "@/lib/querie
 
 type CarGroup = {
   car: CarBasic;
-  total_in: number;
+  // Net (IN − OUT), matching the sheet total. Negative means the car ran at a
+  // loss this month — the card must show that, not just its income.
+  net: number;
   count: number;
 };
 
@@ -32,8 +34,8 @@ function buildModelGroups(
   for (const car of cars) {
     const txs = txByCar.get(car.id);
     if (!txs || txs.length === 0) continue;
-    const { total_in, count } = computeSummary(txs);
-    carGroups.push({ car, total_in, count });
+    const { net, count } = computeSummary(txs);
+    carGroups.push({ car, net, count });
   }
 
   // Group by model
@@ -54,16 +56,16 @@ function buildModelGroups(
     group.carCount++;
   }
 
-  // Sort models by total income desc, cars within each model by plate
+  // Sort models by total net desc, cars within each model by net
   const groups = Array.from(modelMap.values())
     .map((g) => ({
       ...g,
-      cars: g.cars.sort((a, b) => b.total_in - a.total_in),
+      cars: g.cars.sort((a, b) => b.net - a.net),
     }))
     .sort(
       (a, b) =>
-        b.cars.reduce((s, c) => s + c.total_in, 0) -
-        a.cars.reduce((s, c) => s + c.total_in, 0)
+        b.cars.reduce((s, c) => s + c.net, 0) -
+        a.cars.reduce((s, c) => s + c.net, 0)
     );
 
   return { groups, ungroupedCars };
@@ -91,7 +93,12 @@ function CarCard({
         </p>
       </div>
       <div className="flex flex-col items-end shrink-0 gap-0.5">
-        <TRY value={cg.total_in} className="text-base font-bold text-success" />
+        {/* Same negative treatment as the sheet total: red + leading − */}
+        <TRY
+          value={Math.abs(cg.net)}
+          className={`text-base font-bold ${cg.net < 0 ? "text-danger" : "text-success"}`}
+          prefix={cg.net < 0 ? "−" : undefined}
+        />
         <span className="text-[10px] text-ink-4 group-hover:text-brand transition-colors">
           التفاصيل ←
         </span>
